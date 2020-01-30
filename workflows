@@ -1,0 +1,225 @@
+#example found in Types of Workflows; Schedule/Cron workflows
+
+workflows:
+  version: 2
+  commit-workflows:
+    jobs:
+      - build
+    scheduled-workflow
+      triggers:
+        - schedule: 
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only: try-schedule-workflow
+          
+          
+#example found in Types of Workflows; Approval
+
+workflows:
+  version: 2
+  build-test-and-approval-deploy:
+    jobs:
+      - build
+      - test1:
+        requires:
+      - test2:
+        requires"
+          -test1
+      - hold:
+        type: approval
+        requires:
+          -test2
+      - deploy:
+        requires:
+          - hold
+          
+          
+#example found in Types of Workflows; Branch specific
+
+workflows:
+  version: 2
+  dev_state_pre-prod:
+    jobs:
+      - test_dev:
+        filters:
+          branches:
+            only:
+              -dev
+              _/user-.*/
+      - test_stage:
+        filter:
+          branches:
+            only: stage
+      - test_pre-prod:
+        filter:
+          branches:
+            only: /pre-prod(?:-/+)?$/
+            
+
+#example found in Understanding the anatomy of workflows
+
+workflows:
+  version: 2
+  bulild-and-test:
+    jobs:
+      - build
+      - test:
+        requires:
+          - build
+      - hold:
+        type: approval
+        requires:
+          - test
+      - deploy:
+        requires:
+          - hold
+        filters
+          branches:
+            only:
+              - master
+              
+              
+#example found in Example 1: Sequential job execustion
+
+workflows:
+  version: 2
+  bulild-and-test-and-deploy:
+    jobs:
+      - build
+      - test 1:
+        requires:
+          - build
+      - test2:
+        requires:
+          - test1
+      - deploy
+        requires:
+          - test2
+          
+#example found in Example 2: Fan-out/Fan-in workflow
+
+workflows:
+  version: 2
+  build_accept_deploy:
+    jobs:
+      - build
+      - acceptance_test_1:
+          requires:
+            - build
+      - acceptance_test_2:
+          requires:
+            - build
+      - acceptance_test_3:
+          requires:
+            - build
+      - acceptance_test_4:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - acceptance_test_1
+            - acceptance_test_2
+            - acceptance_test_3
+            - acceptance_test_4
+            
+            
+#example found in Example 3: Holding a workflow for a manual approval
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build
+      - test1:
+          requires:
+            - build
+      - test2:
+          requires:
+            - test1
+      - hold:
+        type: approval
+        requires: 
+          - test2
+          
+      deploy:
+        requires:
+          - hold
+
+
+#example found in Example 4: Scheduling a workflow
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - test
+      - deploy
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+                - beta
+    jobs:
+      - coverage
+
+
+#example found in Example 5: Using contexts and filtering in your workflows
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build
+      - test1:
+          requires:
+            - build
+          context: org-global  
+      - test2:
+          requires:
+            - test1
+          context: org-global  
+      - deploy:
+          requires:
+            - test2
+            
+
+#example found in Example 6: Branch-level job execution
+
+workflows:
+  version: 2
+  dev_stage_pre-prod:
+    jobs:
+      - test_dev:
+          filters:  # using regex filters requires the entire branch to match
+            branches:
+              only:  # only branches matching the below regex filters will run
+                - dev
+                - /user-.*/
+      - test_stage:
+          filters:
+            branches:
+              only: stage
+      - test_pre-prod:
+          filters:
+            branches:
+              only: /pre-prod(?:-.+)?$/
+              
+              
+#example found in Example 7: Executing workflows for a Git Tag
+
+workflows:
+  version: 2
+  untagged-build:
+    jobs:
+      - build
+  tagged-build:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
