@@ -1,0 +1,23 @@
+#Concept 3: YML Knowledge
+
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/ruby
+    steps:
+      - checkout
+      - run: echo "A first hello"
+      
+      
+#Concept 5: Orbs
+
+orbs:
+  slack: circleci/slack@x.y.z
+version: 2.1
+workflows:
+  your-workflow:
+    jobs:
+      - slack/approval-notification:
+          message: Pending approval
+          webhook: webhook
