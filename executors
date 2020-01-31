@@ -1,0 +1,72 @@
+#Concept 2: The Docker executor snippet 1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:latest
+
+
+#Concept 2: The Docker executor snippet 2
+
+jobs:
+  build:
+    docker:
+      - image: buildpack-deps:trusty
+      - image:postgres:9.6
+
+
+#Concept 2: Using multiple Docker images
+
+jobs:
+  build:
+    docker:
+      # Primary container image where all steps run.
+      - image: buildpack-deps:trusty
+      # Secondary container image on common network. 
+      - image: mongo:2.6.8-jessie
+         command: [mongod, --smallfiles]
+
+working_directory: ~/
+
+steps:
+# command will execute in trusty container
+# and can access mongo on localhost
+- run: sleep 5 && nc -vz localhost 27017
+
+
+#Concept 3: The machine executor
+
+version: 2
+jobs:
+  build:
+    Machine: true
+      - image: ubuntu-1604:201903-01
+      
+
+#Concept 4: The MacOS executor
+
+jobs:
+  build:
+    macos:
+      - xcode: “9.0”  
+
+    steps:
+    # Commands will execute in macOS container
+    # with Xcode 9.0 installed
+    - run: xcodebuild -version
+    
+    
+#Concept 5: The Windows executor
+
+version: 2.1
+orbs:
+  Win: circleci/windows@1.0.0
+
+jobs:
+  build:
+    executor:
+      - name: win/vs2019   
+      - shell: bash.exe
+    steps:
+      -checkout
+      -run: echo “Hello, Windows” 
