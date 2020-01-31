@@ -1,0 +1,39 @@
+#Concept 1: Test results example
+
+version: 2
+jobs:
+  build:
+    parallelism: 2
+    docker:
+      -image: circleci/python:3.6.1
+      
+    steps:
+      - checkout
+      - restore_cache:
+        keys:
+          -v1-dependencies-{{ .Branch }}-{{ checksum "setup.py }}
+          -v1-dependencies-{{ .Branch }}
+      - run:
+        name: install dependencies
+        command: |
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install
+      - save_cache:
+        paths:
+          - ./venv
+        key: v1-dependencies-{{ .Branch }}-{{ checksum "setup.py }}
+      - run:
+        name: run tests
+        commmand: |
+          . venv/bin/activate
+          pytest --junitxml=test-reports/junit.sml $(circleci test glob test/**/test_*.py | circleci rests split)
+        - store_test_results:
+          path: test-reports
+          
+          
+Concept 3: Uloading artifacts
+          
+- store_artifacts:
+  path: /code/test-results
+  destination: prefix
