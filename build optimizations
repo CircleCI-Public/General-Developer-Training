@@ -1,1 +1,66 @@
+# Concept 2: Leveraging a custom Docker image
 
+- image: quay.io/project/image:tag
+  auth:
+    username: $QUAY_USERNAME
+    password: $QUAY_PASSWORD
+
+
+# Concept 3: Caching explained
+
+ - restore_cache:
+   keys:
+      - gem-cache-v1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+      - gem-cache-v1-{{ arch }}-{{ .Branch }}
+      - gem-cache-v1
+    - run: bundle install --path vendor/bundle
+- save_cache:
+   key: gem-cache-v1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+   paths:
+      - vendor/bundle
+      
+      
+# Concept 5: Workspaces
+
+version: 2
+jobs:
+  flow:
+    <<: *defaults
+    steps:
+      - run: mkdir -p workspace
+      - run: echo "Hello, world!" > workspace/echo-output
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - echo-output
+
+  downstream:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+          
+# Concept 5: Parallelism and test splitting
+# Specifying parallelism
+
+version: 2
+jobs:
+  test:
+    docker:
+      - image: circleci/<language>:<version TAG>
+    parallelism: 4
+    
+# Splitting your tests
+
+# ~/.circleci/config.yml
+version: 2
+jobs:
+  test:
+    docker:
+      - image: circleci/<language>:<version TAG>
+    parallelism: 4
+    steps:
+      - run:
+          command: |
+            echo $(circleci tests glob "foo/**/*" "bar/**/*")
+            circleci tests glob "foo/**/*" "bar/**/*" | xargs -n 1 echo
