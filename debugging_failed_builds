@@ -1,0 +1,22 @@
+# Concept 1: Common errors and solutions
+
+docker:
+    - image: circleci/openjdk:8
+  environment:
+    _JAVA_OPTIONS: -Xmx3g -Xms1g
+    
+    
+# Concept 1: Common errors and solutions
+
+filters:
+  tags:
+    only: /^ci-test.*/
+  branches:
+    ignore: /.*/
+    
+    
+# Concept 1: Common errors and solutions
+    
+image: circleci/postgres:9.6-alpine
+      environment:
+        POSTGRES_USER: postgres
